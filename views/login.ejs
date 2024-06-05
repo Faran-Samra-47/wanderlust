@@ -1,0 +1,74 @@
+<% layout('/Layouts/boilerplate') %>
+<style>
+  /* Light background for the body */
+  body {
+    background-color: #f8f9fa; /* Light background color for the page */
+    color: #333333; /* Dark text color for the page */
+  }
+
+  /* Styling for form inputs and buttons */
+  .form-control, .btn {
+    border: 1px solid #ced4da;
+    background-color: #ffffff; /* White background for form inputs */
+    color: #495057; /* Dark text color */
+  }
+
+  /* Styling for form input placeholders */
+  .form-control::placeholder {
+    color: #6c757d;
+  }
+
+  /* Styling for the login button */
+  .btn-login {
+    background-color: #007bff; /* Blue color for the button */
+    border-color: #007bff;
+    color: #ffffff;
+  }
+
+  /* Styling for button hover effect */
+  .btn-login:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    border-color: #0056b3;
+  }
+</style>
+
+<div class="row justify-content-center">
+  <div class="col-md-6 mt-5">
+    <h2 class="mb-4 text-center">Log In</h2>
+    <form action="/logIn" method="POST" class="needs-validation" novalidate>
+      <div class="form-group mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input
+          type="text"
+          name="username"
+          id="username"
+          class="form-control"
+          placeholder="Enter your username"
+          required
+        />
+        <div class="invalid-feedback">Please enter a username.</div>
+      </div>
+
+      <div class="form-group mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input
+          type="password"
+          name="password"
+          id="password"
+          class="form-control"
+          placeholder="Enter your password"
+          required
+        />
+        <div class="invalid-feedback">Password is required.</div>
+      </div>
+
+      <button type="submit" class="btn btn-login btn-lg w-100">
+        Log In
+      </button>
+    </form>
+
+    <div class="text-center mt-3">
+      <small>Don't have an account? <a href="/signUp">Sign Up</a></small><br><br><br><br><br><br><br>
+    </div>
+  </div>
+</div>

@@ -1,3 +1,5 @@
+// init/index.js
+
 const mongoose = require("mongoose");
 const initData = require("./data.js");
 const Listing = require("../models/listing.js");
@@ -18,8 +20,22 @@ async function main() {
 
 const initDB = async () => {
   await Listing.deleteMany({});
-  await Listing.insertMany(initData.data);
-  console.log("data was initialized");
+  // Ensure that each image property is formatted as an object
+  const listings = initData.data.map(listing => ({
+    ...listing,
+    image: {
+      filename: listing.image.filename,
+      url: listing.image.url
+    }
+  }));
+ // Create a new array with the owner added, instead of reassigning listings
+ const updatedListings = listings.map(obj => ({
+  ...obj,
+  owner: "6636876205126bb50961dc39"
+}));
+
+await Listing.insertMany(updatedListings);
+console.log("data was initialized");
 };
 
 initDB();

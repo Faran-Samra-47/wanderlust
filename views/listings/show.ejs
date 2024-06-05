@@ -1,24 +1,164 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wanderlust</title>
-  </head>
-  <body>
-    <h3>Listing Details :</h3>
-    <ul>
-      <li><%= listing.title %></li>
-      <li><%= listing.description %></li>
-      <li>&#8377; <%= listing.price.toLocaleString("en-IN") %></li>
-      <li><%= listing.location %></li>
-      <li><%= listing.country %></li>
-    </ul>
-    <br />
-    <a href="/listings/<%= listing._id %>/edit">Edit this Listing</a>
-    <br /><br />
-    <form method="POST" action="/listings/<%=listing._id%>?_method=DELETE">
-      <button>Delete this listing</button>
-    </form>
-  </body>
-</html>
+<% layout('/Layouts/boilerplate') %>
+<div class="row">
+  <div class="col-8 offset-2">
+    &nbsp;&nbsp;&nbsp;<div class="card-title"><h4><%= listing.title %></h4></div>
+    <div class="card offset-2" style="width: 28rem; height: auto;">
+      <img class="card-img-top" src="<%= listing.image.url %>" alt="Card image cap" style="width: 100%;">
+      
+      <h5>Listing Details :</h5>
+      <div class="card-body">
+        <h5>Owned By : <%= listing.owner.username %></h5>
+        <p class="card-text"><%= listing.description %></p>
+      </div> 
+      <div>&dollar;<%= listing.price.toLocaleString("en-IN") %>
+      <%= listing.location %>, <%= listing.country %></div>
+      
+      <%  if(currUser &&  currUser._id.equals(listing.owner._id)){ %>
+      <div class="btns">
+        <a href="/listings/<%= listing._id %>/edit" class="btn btn-danger ">Edit</a>
+        <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE">
+         &nbsp; <button class="btn btn-danger ">Delete</button>
+         <%  } %>
+        </form>
+      </div><br>
+    </div>
+  </div>
+</div>
+
+
+<style>
+  /* Custom styling (optional) */
+  .custom-star {
+      font-size: 24px;
+      color: #FFD700;
+  }
+</style>
+
+
+
+    <style>
+        /* Custom styling (optional) */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .feedback-form {
+            max-width: 400px;
+            margin-left: 19rem;
+            margin-bottom: 20px;
+        }
+        .rating {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: row-reverse; /* Reverse the order of stars */
+            justify-content: flex-end;
+        }
+        .rating input {
+            display: none;
+        }
+        .rating label {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .rating label:hover,
+        .rating label:hover ~ label {
+            color: orange;
+        }
+        .rating input:checked ~ label {
+            color: orange;
+        }
+        .comment textarea {
+            width: 100%;
+            height: 100px;
+            resize: none;
+        }
+        .submit-btn {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="feedback-form">
+      
+        <h2>Rate your experience</h2>
+        <% if (currUser ) { %>
+        <form id="feedbackForm" action="/listings/<%= listing.id %>/reviews" method="post" novalidate class="needs-validation">
+            <div class="rating">
+                <!-- Notice that the stars are in reverse order -->
+                <input type="radio" id="star5" name="review[rating]" value="5">
+                <label for="star5">★</label>
+                <input type="radio" id="star4" name="review[rating]" value="4">
+                <label for="star4">★</label>
+                <input type="radio" id="star3" name="review[rating]" value="3">
+                <label for="star3">★</label>
+                <input type="radio" id="star2" name="review[rating]" value="2">
+                <label for="star2">★</label>
+                <input type="radio" id="star1" name="review[rating]" value="1">
+                <label for="star1">★</label>
+            </div>
+            <div class="comment">
+                <label for="comment">Tell us more:</label><br>
+                <textarea id="comment" name="review[comment]" placeholder="Share your feedback" class="form-control" required></textarea>
+           
+                <div class="invalid-feedback">
+                    Please Enter comment
+                   </div> </div><br>
+           
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>         
+        <% } %>
+    </div>
+    <hr>
+    <h4 class="rev">Reviews</h4>
+    <div class="reviews-container d-flex flex-column align-items-center">
+      <% if (listing.reviews.length > 0) { %>
+        <% listing.reviews.forEach(review => { %>
+          <div class="cardss mb-3">
+            <div class="cardss-body">
+              <h6 class="cardss-title">Rating: 
+                <% for (let i = 0; i < review.rating; i++) { %>
+                  <span class="stars">&#9733;</span>
+                <% } %>
+              </h6>
+              <p class="cardss-text"><%= review.comment %></p>
+              <form action="/listings/<%=listing._id%>/reviews/<%=review._id%>?_method=DELETE" method="post">
+                &nbsp; <button class="btn btn-danger btn-small mb-2">Delete</button>
+              </form>
+              
+
+
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p>No reviews available.</p>
+      <% } %>
+
+    </div>
+    <div class="col-8 offset-2">
+      <h4>location</h4>
+    <div id="map"></div>
+    <br>
+    </div>
+    <script>
+      let token = "<%= process.env.Map_Token %>";
+      mapboxgl.accessToken = token;
+  
+      // Initialize the map
+      const coordinates = <%= JSON.stringify(listing.geometry.coordinates) %>;
+      const map = new mapboxgl.Map({
+          container: 'map', // container ID
+          center: coordinates, // starting position [lng, lat]
+          zoom: 9 // starting zoom
+      });
+  
+      // Add marker to the map
+      const marker1 = new mapboxgl.Marker()
+          .setLngLat(coordinates)
+          .addTo(map);
+  </script>
+  
